@@ -41,7 +41,7 @@ def isclickbait(document):
 
 if __name__ == '__main__':
 	#Batch File Version
-	outfile = "../clickbait_features.csv"
+	outfile = "out.csv"
 	with open(outfile, "a") as out:
 		out.write("id,source,clickbait\n")
 	path = ""
