@@ -6,6 +6,8 @@ import subprocess
 import time
 import utility
 import os
+import json
+import unicodedata
 
 ###############  Classifier  ############################
 print "creating classifier..."
@@ -26,6 +28,14 @@ classifier.fit(X, y)
 print "Classifer created"
 ##############################################################
 
+def fix(text): #use this method to fix any json errors
+    try:
+        text = text.decode("ascii", "ignore")
+    except:
+        t=[unicodedata.normalize('NFKD', unicode(q)).encode('ascii','ignore') for q in text]
+        text=''.join(t).strip()
+    return text
+
 ##################### Clickbait Classifier Service ###########################
 def isclickbait(document):
 	try:
@@ -41,17 +51,18 @@ def isclickbait(document):
 
 if __name__ == '__main__':
 	#Batch File Version
-	outfile = "out.csv"
+	outfile = "../clickbait_features.csv"
 	with open(outfile, "a") as out:
-		out.write("id,source,clickbait\n")
+		out.write("id,clickbait\n")
 	path = ""
 	for dirName, subdirList, fileList in os.walk(path):
 		for fn in fileList:
 			source = dirName.split("/")[-1]
 			id = fn.split(".")[0]
-			with open(dirName+"/"+fn) as title_file:
-				title_text = title_file.readline()
-				title_text = title_text.strip()
+			with open(dirName+"/"+fn) as json_file:
+				x = json.loads(json_file.readline())
+				title_text = x['title']
+				title_text = fix(title_text.strip())
 				clickbait = isclickbait(title_text)
 			with open(outfile, "a") as out:
-				out.write(",".join((id,source,str(clickbait)))+"\n")
+				out.write(",".join((id,str(clickbait)))+"\n")
